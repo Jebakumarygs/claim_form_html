@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claim Submission</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Submit Your Claim</h1>
+    </header>
+
+    <div class="container">
+        <form id="claimForm" enctype="multipart/form-data">
+
+            <h2>Contact Information</h2>
+
+            <label>First Name</label>
+            <input name="first_name" />
+
+            <label>Last Name</label>
+            <input name="last_name" />
+
+            <label>Email</label>
+            <input name="email" />
+
+            <h2>Company Details</h2>
+
+            <label>Company Name</label>
+            <input name="company_name" />
+
+            <label>Company Address</label>
+            <input name="company_address" />
+
+            <label>Company City</label>
+            <input name="company_city" />
+
+            <label>Company State</label>
+            <input name="company_state" />
+
+            <label>Company ZIP</label>
+            <input name="company_zip" />
+
+            <h2>Claim Information</h2>
+
+            <label>Claim Amount</label>
+            <input name="claim_amount" />
+
+            <label>Basis of Claim</label>
+            <input name="basis_of_claim" />
+
+            <label>Claim Type</label>
+            <input name="claim_type" />
+
+            <label>Description</label>
+            <textarea name="claim_description">this is for the test</textarea>
+
+            <h2>Supporting Documents</h2>
+
+            <label class="upload-label">Upload Supporting Documents</label>
+
+            <div class="upload-box" id="uploadBox">
+                <p>Click or Drag & Drop files here</p>
+                <input type="file" name="supporting_documents" id="supporting_documents" multiple />
+            </div>
+
+            <ul id="fileList"></ul>
+
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Claim Portal</p>
+    </footer>
+
+    <script>
+        //  File Box Click Trigger
+        document.getElementById("uploadBox").onclick = () => {
+            document.getElementById("supporting_documents").click();
+        };
+
+        // Show Selected Files
+        document.getElementById("supporting_documents").onchange = function () {
+            const fileList = document.getElementById("fileList");
+            fileList.innerHTML = "";
+
+            Array.from(this.files).forEach((file) => {
+                const li = document.createElement("li");
+                li.innerHTML = `<span>${file.name}</span> (${Math.round(file.size / 1024)} KB)`;
+                fileList.appendChild(li);
+            });
+        };
+
+        // Form Submit — Send File Directly for AI Extraction & Review
+        document.getElementById("claimForm").onsubmit = async (e) => {
+            e.preventDefault();
+
+            const fileInput = document.getElementById("supporting_documents");
+            if (fileInput.files.length === 0) {
+                alert("Please select a file to upload.");
+                return;
+            }
+
+            const formData = new FormData();
+            // Append all selected files
+            Array.from(fileInput.files).forEach((file) => {
+                formData.append("files", file);
+            });
+
+            // Append user inputs for cross-validation
+            const claimAmount = document.querySelector('input[name="claim_amount"]').value;
+            const firstName = document.querySelector('input[name="first_name"]').value;
+            const lastName = document.querySelector('input[name="last_name"]').value;
+
+            if (claimAmount) formData.append("claim_amount", claimAmount);
+            if (firstName || lastName) formData.append("creditor_name", `${firstName} ${lastName}`.trim());
+
+            try {
+                // Send to backend API
+                const res = await fetch("https://ff6f4d00ca15.ngrok-free.app/review_claim_file", {
+                    method: "POST",
+                    body: formData // fetch automatically sets Content-Type to multipart/form-data
+                });
+
+                const result = await res.json();
+                console.log("Review Result:", result);
+
+                if (res.ok) {
+                    let message = `Claim Processed Successfully!\n\n`;
+                    message += `Status: ${result.overall_status}\n`;
+                    message += `Risk Score: ${result.risk_score}\n`;
+                    message += `Summary: ${result.summary}\n\n`;
+
+                    if (result.step_results) {
+                        message += "Validation Steps:\n";
+                        result.step_results.forEach(step => {
+                            message += `- ${step.step_name}: ${step.status} (${step.message})\n`;
+                        });
+                    }
+
+                    alert(message);
+                } else {
+                    alert(`Error: ${result.detail || "Submission failed"}`);
+                }
+            } catch (error) {
+                console.error("Submission error:", error);
+                alert("Failed to submit claim. Please try again.");
+            }
+        };
+
+        // Helper function to convert file to base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+    </script>
+
+</body>
+
+</html>

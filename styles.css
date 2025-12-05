@@ -1,0 +1,127 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f7;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: #4a3aff;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.container {
+    max-width: 700px;
+    margin: 30px auto;
+    background: white;
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: 0px 3px 15px rgba(0,0,0,0.1);
+}
+
+h2 {
+    margin-top: 30px;
+    color: #444;
+    border-left: 4px solid #4a3aff;
+    padding-left: 10px;
+    font-size: 20px;
+}
+
+label {
+    font-weight: bold;
+    margin-top: 15px;
+    display: block;
+    color: #333;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+textarea {
+    height: 100px;
+}
+
+input[type="file"] {
+    padding: 10px;
+    background: #fafafa;
+    border: 1px dashed #777;
+}
+
+.submit-btn {
+    background: #4a3aff;
+    color: white;
+    width: 100%;
+    padding: 14px;
+    margin-top: 25px;
+    border: none;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.submit-btn:hover {
+    background: #372ae0;
+}
+
+footer {
+    text-align: center;
+    margin-top: 40px;
+    padding: 20px;
+    background: #eee;
+}
+
+.upload-label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    display: block;
+    color: #333;
+}
+
+.upload-box {
+    width: 100%;
+    padding: 40px;
+    text-align: center;
+    border: 2px dashed #999;
+    border-radius: 10px;
+    background: #fafafa;
+    cursor: pointer;
+    margin-bottom: 15px;
+    transition: .3s;
+}
+
+.upload-box:hover {
+    border-color: #4a3aff;
+    background: #f1f0ff;
+}
+
+.upload-box input {
+    display: none;
+}
+
+#fileList {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+}
+
+#fileList li {
+    background: #f0f0f0;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #333;
+}
+
+#fileList li span {
+    font-weight: bold;
+}
