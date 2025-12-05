@@ -114,15 +114,14 @@
 
             // Append user inputs for cross-validation
             const claimAmount = document.querySelector('input[name="claim_amount"]').value;
-            const firstName = document.querySelector('input[name="first_name"]').value;
-            const lastName = document.querySelector('input[name="last_name"]').value;
+            const companyName = document.querySelector('input[name="company_name"]').value;
 
             if (claimAmount) formData.append("claim_amount", claimAmount);
-            if (firstName || lastName) formData.append("creditor_name", `${firstName} ${lastName}`.trim());
+            if (companyName) formData.append("company_name", companyName);
 
             try {
                 // Send to backend API
-                const res = await fetch("https://ff6f4d00ca15.ngrok-free.app/review_claim_file", {
+                const res = await fetch("https://claims-validation.onrender.com/review_claim_file", {
                     method: "POST",
                     body: formData // fetch automatically sets Content-Type to multipart/form-data
                 });
@@ -132,8 +131,6 @@
 
                 if (res.ok) {
                     let message = `Claim Processed Successfully!\n\n`;
-                    message += `Status: ${result.overall_status}\n`;
-                    message += `Risk Score: ${result.risk_score}\n`;
                     message += `Summary: ${result.summary}\n\n`;
 
                     if (result.step_results) {
