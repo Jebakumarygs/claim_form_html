@@ -135,7 +135,8 @@
                     } catch (e) {
                         modalFullJson.textContent = String(fullJson);
                     }
-                    modalFullJson.style.display = 'none';
+                    // keep element in DOM and collapsed (max-height:0) so CSS transition works
+                    modalFullJson.style.display = 'block';
                     modalFullJson.classList.remove('open');
                     modalFullJson.setAttribute('aria-hidden', 'true');
                     if (modalToggleJson) modalToggleJson.style.display = 'inline-block';
@@ -170,8 +171,7 @@
         // Copy modal text
         modalCopy.addEventListener('click', () => {
             try {
-                // If full JSON is visible, copy that; otherwise copy the summary message
-                const toCopy = (modalFullJson && modalFullJson.style.display !== 'none' && modalFullJson.classList.contains('open')) ? modalFullJson.textContent : (modalMessage.textContent || '');
+                const toCopy = (modalFullJson && modalFullJson.classList.contains('open')) ? modalFullJson.textContent : (modalMessage.textContent || '');
                 navigator.clipboard.writeText(toCopy || '');
             } catch (e) {
                 console.warn('Copy failed', e);
@@ -182,13 +182,19 @@
         // Ignore outside clicks and Escape key so users can't dismiss it accidentally.
         // (Close is handled by `modalClose` click listener defined above.)
 
-        // Toggle full JSON accordion
+        // Toggle full JSON accordion (class-based open/close)
         modalToggleJson.addEventListener('click', () => {
             if (!modalFullJson) return;
-            const isOpen = modalFullJson.classList.toggle('open');
-            modalFullJson.style.display = isOpen ? 'block' : 'none';
-            modalFullJson.setAttribute('aria-hidden', String(!isOpen));
-            modalToggleJson.textContent = isOpen ? 'Close JSON' : 'Open JSON';
+            const willOpen = !modalFullJson.classList.contains('open');
+            if (willOpen) {
+                modalFullJson.classList.add('open');
+                modalFullJson.setAttribute('aria-hidden', 'false');
+                modalToggleJson.textContent = 'Close JSON';
+            } else {
+                modalFullJson.classList.remove('open');
+                modalFullJson.setAttribute('aria-hidden', 'true');
+                modalToggleJson.textContent = 'Open JSON';
+            }
         });
 
         // Upload/select buttons behavior
@@ -264,12 +270,12 @@
 
             // Try to fetch sample files list from server directory listing
             try {
-                const res = await fetch('./sample_docs/');
+                const res = await fetch('sample_docs/');
                 const html = await res.text();
                 const links = html.match(/href="([^"]+\.(?:pdf|doc|docx|jpg|png))"/gi) || [];
                 sampleFiles = links.map(link => {
                     const name = link.replace(/href="|"/g, '');
-                    return { name, path: `./sample_docs/${name}` };
+                    return { name, path: `sample_docs/${name}` };
                 });
             } catch (err) {
                 console.warn('Could not fetch sample files', err);
